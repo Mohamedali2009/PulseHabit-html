@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>PulseHabit - نبض الإنجاز</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0f172a;
+      --card: #1e293b;
+      --accent: #6366f1;
+      --accent-hover: #4f46e5;
+      --text: #f8fafc;
+      --subtext: #94a3b8;
+    }
+    .theme-dark { --bg: #0f172a; --card: #1e293b; --accent: #6366f1; --accent-hover: #4f46e5; --text: #f8fafc; --subtext: #94a3b8; }
+    .theme-night { --bg: #050505; --card: #121212; --accent: #ec4899; --accent-hover: #db2777; --text: #ffffff; --subtext: #a1a1aa; }
+    .theme-emerald { --bg: #064e3b; --card: #047857; --accent: #10b981; --accent-hover: #059669; --text: #ecfdf5; --subtext: #a7f3d0; }
+    .theme-gold { --bg: #1c1917; --card: #292524; --accent: #eab308; --accent-hover: #ca8a04; --text: #fefce8; --subtext: #fef08a; }
+    .theme-cyan { --bg: #083344; --card: #155e75; --accent: #06b6d4; --accent-hover: #0891b2; --text: #ecfeff; --subtext: #a5f3fc; }
+
+    body {
+      font-family: 'Tajawal', sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      transition: background-color 0.2s ease, color 0.2s ease;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .card-bg { background-color: var(--card); }
+    .accent-bg { background-color: var(--accent); }
+    .accent-bg:hover { background-color: var(--accent-hover); }
+    .accent-text { color: var(--accent); }
+    .accent-border { border-color: var(--accent); }
+    
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+  </style>
+</head>
+<body class="theme-dark min-h-screen pb-24 select-none">
+
+  <!-- Top Navigation Header -->
+  <header class="card-bg p-4 sticky top-0 z-50 border-b border-white/10 shadow-md">
+    <div class="max-w-md mx-auto flex justify-between items-center">
+      <div>
+        <h1 class="text-xl font-black tracking-wide flex items-center gap-2">
+          <span>⚡</span> PulseHabit
+        </h1>
+        <p class="text-[11px] text-gray-400">نبض الإنجاز.. كل يوم خطوة للقمة</p>
+      </div>
+      <div class="flex items-center gap-2">
+        <div class="bg-black/30 px-3 py-1.5 rounded-full border border-white/10 flex items-center gap-1.5">
+          <span class="text-yellow-400 text-sm">⭐</span>
+          <span id="user-xp" class="font-bold text-sm">0</span>
+          <span class="text-[10px] opacity-70">XP</span>
+        </div>
+        <div class="bg-black/30 px-3 py-1.5 rounded-full border border-white/10 flex items-center gap-1">
+          <span class="text-xs">🏆 Lvl</span>
+          <span id="user-level" class="font-bold text-sm accent-text">1</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Dynamic Motivation Banner -->
+  <div class="max-w-md mx-auto px-4 pt-4">
+    <div class="card-bg p-3.5 rounded-xl border border-white/10 flex items-center justify-between gap-3 shadow-sm">
+      <div class="flex items-center gap-2.5 flex-1">
+        <span class="text-xl">🔥</span>
+        <p id="quote-display" class="text-xs font-semibold leading-relaxed text-gray-200">
+          "السر في المضي قدماً هو السعي نحو البداية!"
+        </p>
+      </div>
+      <button onclick="nextQuote()" class="bg-white/10 hover:bg-white/20 p-2 rounded-lg text-xs transition active:scale-90 shrink-0">
+        🔄
+      </button>
+    </div>
+  </div>
+
+  <!-- Main Content Container -->
+  <main class="max-w-md mx-auto p-4 space-y-6">
+
+    <!-- TAB 1: TIMER & POMODORO -->
+    <section id="tab-timer" class="tab-content active space-y-4">
+      <div class="card-bg p-6 rounded-2xl text-center relative overflow-hidden border border-white/5 shadow-xl">
+        <div class="text-xs font-semibold uppercase tracking-wider mb-2 text-gray-400" id="timer-mode-label">جلسة تركيز حاسمة</div>
+        <div class="text-6xl font-black my-4 tracking-tight font-mono text-white" id="timer-display">25:00</div>
+        
+        <!-- Timer Action Buttons -->
+        <div class="flex justify-center items-center gap-4 my-6">
+          <button id="btn-start" onclick="toggleTimer()" class="accent-bg text-white font-bold py-3.5 px-8 rounded-xl shadow-lg transition active:scale-95 text-base">
+            ابدأ التركيز
+          </button>
+          <button onclick="resetTimer()" class="bg-white/10 hover:bg-white/20 py-3.5 px-4 rounded-xl transition active:scale-95">
+            🔄
+          </button>
+        </div>
+
+        <!-- Ambient Noise Generators -->
+        <div class="flex justify-center gap-2 pt-3 border-t border-white/10">
+          <button onclick="toggleAudio('rain')" id="btn-audio-rain" class="text-xs px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 flex items-center gap-1">
+            <span>🌧️</span> صوت المطر
+          </button>
+          <button onclick="toggleAudio('alpha')" id="btn-audio-alpha" class="text-xs px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 flex items-center gap-1">
+            <span>🧠</span> موجات التركيز
+          </button>
+        </div>
+      </div>
+
+      <!-- 6-Month Progress Banner -->
+      <div class="card-bg p-4 rounded-xl border border-white/5 space-y-2">
+        <div class="flex justify-between text-xs">
+          <span class="font-bold">رحلة الـ 6 أشهر</span>
+          <span id="journey-percent" class="accent-text font-bold">0%</span>
+        </div>
+        <div class="w-full bg-black/40 h-2.5 rounded-full overflow-hidden">
+          <div id="journey-bar" class="accent-bg h-full w-0 transition-all duration-500"></div>
+        </div>
+        <p class="text-[11px] text-gray-400 text-center pt-1">أكمل الجلسات اليومية لتحقيق الهدف واستبدال النقاط بالمكافآت!</p>
+      </div>
+    </section>
+
+    <!-- TAB 2: TASK MANAGEMENT -->
+    <section id="tab-tasks" class="tab-content space-y-4">
+      <div class="card-bg p-4 rounded-xl border border-white/5 space-y-3">
+        <h2 class="font-bold text-sm">إضافة مهمة جديدة (+10 XP)</h2>
+        <div class="flex gap-2">
+          <input type="text" id="task-input" placeholder="ما الذي تريد إنجازه اليوم؟" class="flex-1 bg-black/30 border border-white/10 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-indigo-500">
+          <button onclick="addTask()" class="accent-bg px-4 rounded-lg font-bold text-sm shadow">إضافة</button>
+        </div>
+      </div>
+
+      <div class="space-y-2" id="tasks-container">
+        <!-- Rendered dynamically -->
+      </div>
+    </section>
+
+    <!-- TAB 3: EXPANDED MEME & STICKER SHOP -->
+    <section id="tab-shop" class="tab-content space-y-4">
+      <div class="card-bg p-4 rounded-xl border border-white/5">
+        <h2 class="font-bold text-base mb-1">🎁 متجر الملصقات والميمز (مجاني بالكامل)</h2>
+        <p class="text-xs text-gray-400">استبدل نقاط الـ XP التي جمعتها بجهدك لفتح ملصقات ممتعة ومضحكة!</p>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3" id="shop-items-container">
+        <!-- Rendered dynamically -->
+      </div>
+    </section>
+
+    <!-- TAB 4: THEMES & DATA -->
+    <section id="tab-settings" class="tab-content space-y-4">
+      <div class="card-bg p-4 rounded-xl border border-white/5 space-y-3">
+        <h2 class="font-bold text-base">🎨 ثيمات التطبيق</h2>
+        <div class="grid grid-cols-1 gap-2">
+          <button onclick="setTheme('theme-dark')" class="p-3 rounded-lg bg-[#0f172a] border border-indigo-500/50 flex justify-between items-center text-sm">
+            <span>الافتراضي (البنفسجي)</span>
+            <span class="w-4 h-4 rounded-full bg-indigo-500"></span>
+          </button>
+          <button onclick="setTheme('theme-night')" class="p-3 rounded-lg bg-[#050505] border border-pink-500/50 flex justify-between items-center text-sm">
+            <span>الليل المظلم (Neon)</span>
+            <span class="w-4 h-4 rounded-full bg-pink-500"></span>
+          </button>
+          <button onclick="setTheme('theme-emerald')" class="p-3 rounded-lg bg-[#064e3b] border border-emerald-500/50 flex justify-between items-center text-sm">
+            <span>الزمرد الأخضر</span>
+            <span class="w-4 h-4 rounded-full bg-emerald-500"></span>
+          </button>
+          <button onclick="setTheme('theme-gold')" class="p-3 rounded-lg bg-[#1c1917] border border-yellow-500/50 flex justify-between items-center text-sm">
+            <span>الذهب الملكي</span>
+            <span class="w-4 h-4 rounded-full bg-yellow-500"></span>
+          </button>
+          <button onclick="setTheme('theme-cyan')" class="p-3 rounded-lg bg-[#083344] border border-cyan-500/50 flex justify-between items-center text-sm">
+            <span>السيان الذكي</span>
+            <span class="w-4 h-4 rounded-full bg-cyan-500"></span>
+          </button>
+        </div>
+      </div>
+
+      <div class="card-bg p-4 rounded-xl border border-white/5 space-y-2">
+        <h2 class="font-bold text-sm">💾 حفظ واسترجاع البيانات</h2>
+        <div class="flex gap-2">
+          <button onclick="exportData()" class="flex-1 bg-white/10 hover:bg-white/20 py-2.5 rounded-lg text-xs font-bold">تصدير النسخة</button>
+          <button onclick="importData()" class="flex-1 bg-white/10 hover:bg-white/20 py-2.5 rounded-lg text-xs font-bold">استيراد النسخة</button>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Bottom Navigation -->
+  <nav class="fixed bottom-0 left-0 right-0 card-bg border-t border-white/10 z-50">
+    <div class="max-w-md mx-auto flex justify-around py-2 text-center text-xs">
+      <button onclick="switchTab('timer')" id="nav-timer" class="flex-1 py-1 accent-text font-bold">
+        <div class="text-lg">⏱️</div>
+        <div>المؤقت</div>
+      </button>
+      <button onclick="switchTab('tasks')" id="nav-tasks" class="flex-1 py-1 text-gray-400 hover:text-white">
+        <div class="text-lg">✅</div>
+        <div>المهام</div>
+      </button>
+      <button onclick="switchTab('shop')" id="nav-shop" class="flex-1 py-1 text-gray-400 hover:text-white">
+        <div class="text-lg">🎁</div>
+        <div>المتجر</div>
+      </button>
+      <button onclick="switchTab('settings')" id="nav-settings" class="flex-1 py-1 text-gray-400 hover:text-white">
+        <div class="text-lg">⚙️</div>
+        <div>الإعدادات</div>
+      </button>
+    </div>
+  </nav>
+
+  <!-- App Script Logic -->
+  <script>
+    // Motivational Quotes Array
+    const quotes = [
+      "السر في المضي قدماً هو السعي نحو البداية!",
+      "كل دقيقة تدرسها الآن تضعك في المقدمة غداً.",
+      "الانضباط هو الجسر بين الأهداف والإنجاز.",
+      "لا تنتظر الشغف، تصرف ولسوف يتبعك الشغف!",
+      "نجاحك اليوم هو حصاد خطوات بسيطة كررتها كل يوم.",
+      "المستقبل ينتمي لأولئك الذين يستعدون له اليوم.",
+      "الصعاب التي تتغلب عليها اليوم تكون قوتك غداً!",
+      "ركز على التقدم، وليس على الكمال."
+    ];
+    let quoteIndex = 0;
+
+    function nextQuote() {
+      quoteIndex = (quoteIndex + 1) % quotes.length;
+      document.getElementById('quote-display').innerText = `"${quotes[quoteIndex]}"`;
+    }
+
+    // State
+    let state = {
+      xp: 0,
+      theme: 'theme-dark',
+      completedPomodoros: 0,
+      tasks: [],
+      inventory: []
+    };
+
+    function loadState() {
+      const saved = localStorage.getItem('pulsehabit_data');
+      if (saved) {
+        try { state = { ...state, ...JSON.parse(saved) }; } catch(e) {}
+      }
+      updateUI();
+    }
+
+    function saveState() {
+      localStorage.setItem('pulsehabit_data', JSON.stringify(state));
+      updateUI();
+    }
+
+    function updateUI() {
+      document.getElementById('user-xp').innerText = state.xp;
+      document.getElementById('user-level').innerText = Math.floor(state.xp / 100) + 1;
+      document.body.className = state.theme;
+      
+      const progress = Math.min(100, Math.round((state.completedPomodoros / 100) * 100));
+      document.getElementById('journey-percent').innerText = progress + '%';
+      document.getElementById('journey-bar').style.width = progress + '%';
+      
+      renderTasks();
+      renderShop();
+    }
+
+    function switchTab(tabId) {
+      document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+      document.getElementById('tab-' + tabId).classList.add('active');
+      
+      ['timer', 'tasks', 'shop', 'settings'].forEach(t => {
+        const btn = document.getElementById('nav-' + t);
+        if (t === tabId) {
+          btn.className = "flex-1 py-1 accent-text font-bold";
+        } else {
+          btn.className = "flex-1 py-1 text-gray-400 hover:text-white";
+        }
+      });
+    }
+
+    // Pomodoro Timer
+    let timer = null;
+    let timeLeft = 25 * 60;
+    let isRunning = false;
+
+    function toggleTimer() {
+      const btn = document.getElementById('btn-start');
+      if (isRunning) {
+        clearInterval(timer);
+        isRunning = false;
+        btn.innerText = "استكمال";
+      } else {
+        isRunning = true;
+        btn.innerText = "إيقاف مؤقت";
+        timer = setInterval(() => {
+          if (timeLeft > 0) {
+            timeLeft--;
+            updateTimerDisplay();
+          } else {
+            clearInterval(timer);
+            isRunning = false;
+            btn.innerText = "ابدأ التركيز";
+            timeLeft = 25 * 60;
+            updateTimerDisplay();
+            
+            state.xp += 25;
+            state.completedPomodoros += 1;
+            saveState();
+            alert('🎉 أحسنت! أكملت جلسة المذاكرة بنجاح وحصلت على +25 XP');
+          }
+        }, 1000);
+      }
+    }
+
+    function resetTimer() {
+      clearInterval(timer);
+      isRunning = false;
+      timeLeft = 25 * 60;
+      document.getElementById('btn-start').innerText = "ابدأ التركيز";
+      updateTimerDisplay();
+    }
+
+    function updateTimerDisplay() {
+      const m = Math.floor(timeLeft / 60).toString().padStart(2, '0');
+      const s = (timeLeft % 60).toString().padStart(2, '0');
+      document.getElementById('timer-display').innerText = `${m}:${s}`;
+    }
+
+    // Ambient Synth
+    let audioCtx = null;
+    let noiseNode = null;
+
+    function toggleAudio(type) {
+      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      if (noiseNode) {
+        noiseNode.stop();
+        noiseNode = null;
+        document.getElementById('btn-audio-rain').classList.remove('accent-bg');
+        document.getElementById('btn-audio-alpha').classList.remove('accent-bg');
+        return;
+      }
+
+      const bufferSize = audioCtx.sampleRate * 2;
+      const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+      const data = buffer.getChannelData(0);
+
+      for (let i = 0; i < bufferSize; i++) {
+        data[i] = Math.random() * 2 - 1;
+      }
+
+      noiseNode = audioCtx.createBufferSource();
+      noiseNode.buffer = buffer;
+      noiseNode.loop = true;
+
+      const filter = audioCtx.createBiquadFilter();
+      filter.type = type === 'rain' ? 'lowpass' : 'bandpass';
+      filter.frequency.value = type === 'rain' ? 800 : 400;
+
+      noiseNode.connect(filter);
+      filter.connect(audioCtx.destination);
+      noiseNode.start();
+
+      document.getElementById('btn-audio-' + type).classList.add('accent-bg');
+    }
+
+    // Tasks
+    function addTask() {
+      const input = document.getElementById('task-input');
+      const text = input.value.trim();
+      if (!text) return;
+
+      state.tasks.push({ id: Date.now(), text, completed: false });
+      input.value = '';
+      saveState();
+    }
+
+    function toggleTask(id) {
+      const task = state.tasks.find(t => t.id === id);
+      if (task) {
+        task.completed = !task.completed;
+        if (task.completed) state.xp += 10;
+        saveState();
+      }
+    }
+
+    function deleteTask(id) {
+      state.tasks = state.tasks.filter(t => t.id !== id);
+      saveState();
+    }
+
+    function renderTasks() {
+      const container = document.getElementById('tasks-container');
+      if (state.tasks.length === 0) {
+        container.innerHTML = `<div class="text-center py-6 text-xs text-gray-500">لا يوجد مهام قائمة حالياً</div>`;
+        return;
+      }
+
+      container.innerHTML = state.tasks.map(t => `
+        <div class="card-bg p-3 rounded-lg border border-white/5 flex justify-between items-center text-sm">
+          <div class="flex items-center gap-2">
+            <input type="checkbox" ${t.completed ? 'checked' : ''} onchange="toggleTask(${t.id})" class="rounded accent-indigo-500">
+            <span class="${t.completed ? 'line-through text-gray-500' : ''}">${t.text}</span>
+          </div>
+          <button onclick="deleteTask(${t.id})" class="text-red-400 text-xs hover:text-red-300">إزالة</button>
+        </div>
+      `).join('');
+    }
+
+    // Dynamic Meme Sticker Shop Items
+    const shopItems = [
+      { id: 'm1', title: 'دانيش المذاكرة', cost: 30, icon: '🥐', meme: 'لما تذاكر 5 دقائق وتطلب مكافأة' },
+      { id: 'm2', title: 'شاي الفولاذ', cost: 60, icon: '☕', meme: 'الوقود الرسمي للـ 100%' },
+      { id: 'm3', title: 'عبقري بومودورو', cost: 90, icon: '🧠', meme: 'إنشتاين بيسقفلك يا فنان' },
+      { id: 'm4', title: 'المحارب الصامت', cost: 120, icon: '🥷', meme: 'الهدوء الذي يسبق الدرجات النهائية' },
+      { id: 'm5', title: 'نسر المادة', cost: 150, icon: '🦅', meme: 'طائر فوق أسئلة الامتحانات' },
+      { id: 'm6', title: 'وحش الانضباط', cost: 200, icon: '🦖', meme: 'مفيش تسويف تاني خلاص' },
+      { id: 'm7', title: 'الأسطورة الخالدة', cost: 250, icon: '👑', meme: 'القمة مكاني الطبيعي' },
+      { id: 'm8', title: 'درع الـ 100%', cost: 300, icon: '🛡️', meme: 'حائط صد ضد المشتتات' }
+    ];
+
+    function renderShop() {
+      const container = document.getElementById('shop-items-container');
+      container.innerHTML = shopItems.map(item => {
+        const owned = state.inventory.includes(item.id);
+        return `
+          <div class="card-bg p-3 rounded-xl border border-white/5 flex flex-col justify-between items-center text-center space-y-2">
+            <div class="text-3xl my-1">${item.icon}</div>
+            <div>
+              <div class="font-bold text-xs">${item.title}</div>
+              <div class="text-[10px] text-gray-400 my-0.5">"${item.meme}"</div>
+            </div>
+            ${owned 
+              ? `<span class="text-xs text-emerald-400 font-bold">مملوك ✔️</span>`
+              : `<button onclick="buySticker('${item.id}',${item.cost})" class="w-full accent-bg py-1.5 rounded-lg text-xs font-bold shadow">
+                  فتح بـ ${item.cost} XP
+                 </button>`
+            }
+          </div>
+        `;
+      }).join('');
+    }
+
+    function buySticker(id, cost) {
+      if (state.xp < cost) {
+        alert('❌ لا تمتلك XP كافي لفتح هذا الملصق! واصل المذاكرة والإنجاز.');
+        return;
+      }
+      state.xp -= cost;
+      state.inventory.push(id);
+      saveState();
+      alert('🎉 مبروك! تم فتح الملصق بنجاح');
+    }
+
+    function setTheme(themeClass) {
+      state.theme = themeClass;
+      saveState();
+    }
+
+    function exportData() {
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(state));
+      const anchor = document.createElement('a');
+      anchor.setAttribute("href", dataStr);
+      anchor.setAttribute("download", "pulsehabit_backup.json");
+      anchor.click();
+    }
+
+    function importData() {
+      const input = document.createElement('input');
+      input.type = 'file';
+      input.onchange = e => {
+        const file = e.target.files[0];
+        const reader = new FileReader();
+        reader.onload = event => {
+          try {
+            state = JSON.parse(event.target.result);
+            saveState();
+            alert('✔️ تم استيراد البيانات بنجاح!');
+          } catch(err) {
+            alert('❌ الملف غير صالح!');
+          }
+        };
+        reader.readAsText(file);
+      };
+      input.click();
+    }
+
+    window.onload = loadState;
+  </script>
+</body>
+</html>
